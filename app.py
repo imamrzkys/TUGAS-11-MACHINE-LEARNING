@@ -154,8 +154,8 @@ def add_no_cache_headers(response):
     response.headers['Expires'] = '0'
     return response
 
-# Load artifacts on application startup
-load_ml_artifacts()
+# Model loading is temporarily disabled. 
+# load_ml_artifacts()
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
