@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Outcome Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" sizes="any">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ static_version }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+    <div class="gradient-bg">
+        <header class="header" id="home">
+            <div class="container header-flex">
+                <div class="header-text">
+                    <h1 class="header-title">Student Academic Outcome Prediction</h1>
+                    <p class="header-subtitle">Dashboard prediksi status mahasiswa berbasis Artificial Neural Network</p>
+                </div>
+                <nav class="main-nav" id="mainNav">
+                    <a href="#home">Home</a>
+                    <a href="#about">Tentang</a>
+                    <a href="#predict">Prediksi</a>
+                    <a href="#resultSection">Hasil</a>
+                    <a href="#analysis">Analisis</a>
+                    <a href="#evaluation">Evaluasi</a>
+                </nav>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                    <span class="hamburger"></span>
+                </button>
+            </div>
+        </header>
+
+        <main class="container py-5">
+
+            <section class="section-about" id="about">
+                <div class="section-header">
+                    <h2>Dashboard Prediksi Status Mahasiswa</h2>
+                    <p class="text-muted">Sistem ini memanfaatkan model Artificial Neural Network (ANN) untuk memprediksi status akhir mahasiswa: Dropout, Enrolled, atau Graduate.</p>
+                </div>
+
+                <div class="about-grid">
+                    <div class="about-card">
+                        <h3>Tujuan Sistem</h3>
+                        <ul>
+                            <li>Mendeteksi dini risiko Dropout berdasarkan 36 fitur akademik dan demografis.</li>
+                            <li>Mendukung pengambilan keputusan bagi dosen dan program studi.</li>
+                            <li>Menyajikan hasil prediksi yang mudah dipahami melalui visualisasi.</li>
+                        </ul>
+                    </div>
+                    <div class="about-card">
+                        <h3>Fitur Utama</h3>
+                        <ul>
+                            <li>Form input lengkap untuk 36 fitur numerik.</li>
+                            <li>Probabilitas setiap kelas ditampilkan dalam grafik dan kartu nilai.</li>
+                            <li>Visualisasi proses training: loss, accuracy, dan confusion matrix.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-input" id="predict">
+                <div class="section-header">
+                    <h2>Input Data Mahasiswa</h2>
+                    <p class="text-muted">Masukkan 36 fitur numerik untuk prediksi</p>
+                </div>
+
+                <div class="quick-examples mb-4">
+                    <button class="btn btn-example" onclick="fillExampleDropout()">
+                        Contoh: Cenderung Dropout
+                    </button>
+                    <button class="btn btn-example" onclick="fillExampleGraduate()">
+                        Contoh: Graduate
+                    </button>
+                </div>
+
+                <form id="predictionForm" class="form-grid">
+                    <div class="form-group">
+                        <label for="Marital Status">Marital Status</label>
+                        <input type="number" id="Marital Status" name="Marital Status" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Application mode">Application mode</label>
+                        <input type="number" id="Application mode" name="Application mode" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Application order">Application order</label>
+                        <input type="number" id="Application order" name="Application order" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Course">Course</label>
+                        <input type="number" id="Course" name="Course" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Daytime/evening attendance">Daytime/evening attendance</label>
+                        <input type="number" id="Daytime/evening attendance" name="Daytime/evening attendance" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Previous qualification">Previous qualification</label>
+                        <input type="number" id="Previous qualification" name="Previous qualification" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Previous qualification (grade)">Previous qualification (grade)</label>
+                        <input type="number" id="Previous qualification (grade)" name="Previous qualification (grade)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Nacionality">Nacionality</label>
+                        <input type="number" id="Nacionality" name="Nacionality" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Mother's qualification">Mother's qualification</label>
+                        <input type="number" id="Mother's qualification" name="Mother's qualification" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Father's qualification">Father's qualification</label>
+                        <input type="number" id="Father's qualification" name="Father's qualification" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Mother's occupation">Mother's occupation</label>
+                        <input type="number" id="Mother's occupation" name="Mother's occupation" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Father's occupation">Father's occupation</label>
+                        <input type="number" id="Father's occupation" name="Father's occupation" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Admission grade">Admission grade</label>
+                        <input type="number" id="Admission grade" name="Admission grade" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Displaced">Displaced</label>
+                        <input type="number" id="Displaced" name="Displaced" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Educational special needs">Educational special needs</label>
+                        <input type="number" id="Educational special needs" name="Educational special needs" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Debtor">Debtor</label>
+                        <input type="number" id="Debtor" name="Debtor" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Tuition fees up to date">Tuition fees up to date</label>
+                        <input type="number" id="Tuition fees up to date" name="Tuition fees up to date" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Gender">Gender</label>
+                        <input type="number" id="Gender" name="Gender" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Scholarship holder">Scholarship holder</label>
+                        <input type="number" id="Scholarship holder" name="Scholarship holder" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Age at enrollment">Age at enrollment</label>
+                        <input type="number" id="Age at enrollment" name="Age at enrollment" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="International">International</label>
+                        <input type="number" id="International" name="International" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 1st sem (credited)">Curricular units 1st sem (credited)</label>
+                        <input type="number" id="Curricular units 1st sem (credited)" name="Curricular units 1st sem (credited)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 1st sem (enrolled)">Curricular units 1st sem (enrolled)</label>
+                        <input type="number" id="Curricular units 1st sem (enrolled)" name="Curricular units 1st sem (enrolled)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 1st sem (evaluations)">Curricular units 1st sem (evaluations)</label>
+                        <input type="number" id="Curricular units 1st sem (evaluations)" name="Curricular units 1st sem (evaluations)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 1st sem (approved)">Curricular units 1st sem (approved)</label>
+                        <input type="number" id="Curricular units 1st sem (approved)" name="Curricular units 1st sem (approved)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 1st sem (grade)">Curricular units 1st sem (grade)</label>
+                        <input type="number" id="Curricular units 1st sem (grade)" name="Curricular units 1st sem (grade)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 1st sem (without evaluations)">Curricular units 1st sem (without evaluations)</label>
+                        <input type="number" id="Curricular units 1st sem (without evaluations)" name="Curricular units 1st sem (without evaluations)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 2nd sem (credited)">Curricular units 2nd sem (credited)</label>
+                        <input type="number" id="Curricular units 2nd sem (credited)" name="Curricular units 2nd sem (credited)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 2nd sem (enrolled)">Curricular units 2nd sem (enrolled)</label>
+                        <input type="number" id="Curricular units 2nd sem (enrolled)" name="Curricular units 2nd sem (enrolled)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 2nd sem (evaluations)">Curricular units 2nd sem (evaluations)</label>
+                        <input type="number" id="Curricular units 2nd sem (evaluations)" name="Curricular units 2nd sem (evaluations)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 2nd sem (approved)">Curricular units 2nd sem (approved)</label>
+                        <input type="number" id="Curricular units 2nd sem (approved)" name="Curricular units 2nd sem (approved)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 2nd sem (grade)">Curricular units 2nd sem (grade)</label>
+                        <input type="number" id="Curricular units 2nd sem (grade)" name="Curricular units 2nd sem (grade)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Curricular units 2nd sem (without evaluations)">Curricular units 2nd sem (without evaluations)</label>
+                        <input type="number" id="Curricular units 2nd sem (without evaluations)" name="Curricular units 2nd sem (without evaluations)" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Unemployment rate">Unemployment rate</label>
+                        <input type="number" id="Unemployment rate" name="Unemployment rate" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Inflation rate">Inflation rate</label>
+                        <input type="number" id="Inflation rate" name="Inflation rate" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="GDP">GDP</label>
+                        <input type="number" id="GDP" name="GDP" step="any" required>
+                    </div>
+                </form>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-predict" onclick="submitPrediction()">
+                        Predict
+                    </button>
+                    <button type="button" class="btn btn-reset" onclick="resetForm()">
+                        Reset
+                    </button>
+                </div>
+            </section>
+
+            <section class="section-result" id="resultSection" style="display: none;">
+                <div class="section-header">
+                    <h2>Hasil Prediksi</h2>
+                </div>
+
+                <div id="alertContainer"></div>
+
+                <div class="result-container">
+                    <div class="prediction-card">
+                        <h3>Prediksi Kelas</h3>
+                        <div class="prediction-badge" id="predictionBadge"></div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="probabilityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="probability-details">
+                    <h4>Probabilitas Setiap Kelas</h4>
+                    <div id="probabilityList" class="prob-list"></div>
+                </div>
+            </section>
+
+            <section class="section-analysis" id="analysis">
+                <div class="section-header">
+                    <h2>Analisis Model</h2>
+                    <p class="text-muted">Hasil training Artificial Neural Network</p>
+                </div>
+
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <h4>Training vs Validation Loss</h4>
+                        <img src="{{ url_for('assets', filename='loss validation.png') }}?v={{ static_version }}" alt="Training Loss" class="analysis-image">
+                        <p class="caption">Grafik menunjukkan penurunan loss yang stabil tanpa overfitting signifikan</p>
+                    </div>
+
+                    <div class="analysis-card">
+                        <h4>Training vs Validation Accuracy</h4>
+                        <img src="{{ url_for('assets', filename='training vs validation.png') }}?v={{ static_version }}" alt="Training Accuracy" class="analysis-image">
+                        <p class="caption">Akurasi meningkat konsisten dengan gap validation yang minimal</p>
+                    </div>
+
+                    <div class="analysis-card">
+                        <h4>Confusion Matrix</h4>
+                        <img src="{{ url_for('assets', filename='confusion matrix.png') }}?v={{ static_version }}" alt="Confusion Matrix" class="analysis-image">
+                        <p class="caption">Matriks kebingungan menunjukkan performa per kelas pada test set</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-evaluation" id="evaluation">
+                <div class="section-header">
+                    <h2>Ringkasan Evaluasi Model</h2>
+                </div>
+
+                <div class="evaluation-card">
+                    <div class="eval-metric">
+                        <span class="metric-label">Accuracy</span>
+                        <span class="metric-value">73%</span>
+                    </div>
+                    <div class="eval-metric">
+                        <span class="metric-label">Macro F1-Score</span>
+                        <span class="metric-value">0.70</span>
+                    </div>
+                </div>
+
+                <div class="evaluation-text">
+                    <h4>Penjelasan Analisis</h4>
+                    <ul>
+                        <li><strong>Model Stabil:</strong> Kurva training dan validation loss menunjukkan konvergensi yang baik tanpa fluktuasi ekstrem</li>
+                        <li><strong>Overfitting Rendah:</strong> Gap antara training dan validation accuracy minimal, menunjukkan generalisasi yang baik</li>
+                        <li><strong>Recall Kelas Enrolled Meningkat:</strong> Model berhasil meningkatkan deteksi kelas Enrolled melalui class weighting</li>
+                        <li><strong>Performa Per Kelas:</strong> Dropout dan Graduate memiliki precision tinggi (0.87, 0.85), sementara Enrolled masih perlu improvement</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <p class="footer-name">Imam Rizky Saputra</p>
+                <p class="footer-meta">@2025 Teknik Informatika</p>
+                <p class="footer-meta">Machine Learning</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}?v={{ static_version }}"></script>
+</body>
+</html>
