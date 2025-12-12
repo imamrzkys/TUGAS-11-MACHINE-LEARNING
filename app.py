@@ -3,6 +3,7 @@ import json
 import time
 import numpy as np
 import joblib
+import requests
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from tensorflow.keras.models import load_model
 
@@ -26,12 +27,35 @@ scaler = None
 label_encoder = None
 feature_columns = None
 
+def download_file(url, destination):
+    print(f"Downloading file from {url} to {destination}...")
+    try:
+        with requests.get(url, stream=True) as r:
+            r.raise_for_status()
+            with open(destination, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        print("Download complete.")
+        return True
+    except requests.exceptions.RequestException as e:
+        print(f"Error downloading file: {e}")
+        return False
+
 def load_ml_artifacts():
     global model, scaler, label_encoder, feature_columns
     
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    model = load_model(os.path.join(base_dir, 'ann_student_status.keras'))
+    model_path = os.path.join(base_dir, 'ann_student_status.keras')
+
+    # Download model if it doesn't exist
+    if not os.path.exists(model_path):
+        print(f"Model file not found at {model_path}. Attempting to download...")
+        # Direct download link for the Google Drive file
+        model_url = "https://drive.google.com/uc?export=download&id=1EFn4QlEe9RGUZDZi4xRIx_TFKcxNBWOP"
+        if not download_file(model_url, model_path):
+            raise RuntimeError("Could not download the model file. Application cannot start.")
+
+    model = load_model(model_path)
     scaler = joblib.load(os.path.join(base_dir, 'scaler.pkl'))
     label_encoder = joblib.load(os.path.join(base_dir, 'label_encoder.pkl'))
     feature_columns = joblib.load(os.path.join(base_dir, 'feature_columns.pkl'))
