@@ -3,7 +3,7 @@ import json
 import time
 import numpy as np
 import joblib
-import gdown
+import requests
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from tensorflow.keras.models import load_model
 
@@ -42,12 +42,18 @@ def load_ml_artifacts():
         print("Acquired lock. Proceeding with model download...")
         
         # If we acquired the lock, we are the first process. Download the model.
-        if os.path.exists(model_path):
-            os.remove(model_path)
-
-        model_url = "https://drive.google.com/uc?id=1EFn4QlEe9RGUZDZi4xRIx_TFKcxNBWOP"
-        gdown.download(model_url, model_path, quiet=False)
-        print("Download complete.")
+        # Always attempt to download the model on startup
+        print("Attempting to download model from GitHub Releases...")
+        model_url = "https://github.com/imamrzkys/TUGAS-11-MACHINE-LEARNING/releases/download/v1.0.0/ann_student_status.keras"
+        try:
+            with requests.get(model_url, stream=True) as r:
+                r.raise_for_status()
+                with open(model_path, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+            print("Download complete.")
+        except requests.exceptions.RequestException as e:
+            raise RuntimeError(f"Could not download the model file: {e}")
         lock_file.close()
         os.remove(lock_path) # Release the lock
         print("Lock released.")
@@ -154,8 +160,8 @@ def add_no_cache_headers(response):
     response.headers['Expires'] = '0'
     return response
 
-# Model loading is temporarily disabled. 
-# load_ml_artifacts()
+# Load artifacts on application startup
+load_ml_artifacts()
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
