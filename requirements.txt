@@ -1,6 +1,7 @@
 Flask
 gunicorn
 tensorflow
+h5py
 numpy
 scikit-learn
 pandas

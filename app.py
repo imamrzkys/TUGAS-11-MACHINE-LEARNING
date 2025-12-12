@@ -32,7 +32,7 @@ def load_ml_artifacts():
     global model, scaler, label_encoder, feature_columns
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(base_dir, 'ann_student_status.keras')
+    model_path = os.path.join(base_dir, 'ann_student_status.h5') # Use .h5 extension
     lock_path = os.path.join(base_dir, 'model.lock')
 
     try:
@@ -42,7 +42,8 @@ def load_ml_artifacts():
         if os.path.exists(model_path):
             os.remove(model_path)
 
-        model_url = "https://github.com/imamrzkys/TUGAS-11-MACHINE-LEARNING/releases/download/v1.0.0/ann_student_status.keras"
+        # Use the new .h5 model URL from GitHub Releases
+        model_url = "https://github.com/imamrzkys/TUGAS-11-MACHINE-LEARNING/releases/download/v1.0.0/ann_student_status.h5"
         print(f"Downloading model from {model_url}...")
         with requests.get(model_url, stream=True) as r:
             r.raise_for_status()
