@@ -44,7 +44,7 @@ def load_ml_artifacts():
 
     # Always attempt to download the model on startup using gdown
     print("Attempting to download model...")
-    model_url = "https://drive.google.com/file/d/1EFn4QlEe9RGUZDZi4xRIx_TFKcxNBWOP/view?usp=drive_link"
+    model_url = "https://drive.google.com/uc?id=1EFn4QlEe9RGUZDZi4xRIx_TFKcxNBWOP"
     try:
         gdown.download(model_url, model_path, quiet=False)
         print("Download complete.")
