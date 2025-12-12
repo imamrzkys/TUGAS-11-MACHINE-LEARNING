@@ -66,6 +66,15 @@ def load_ml_artifacts():
 
     # All processes will load the model after the first one has downloaded it.
     print("Loading model and artifacts...")
+
+    # === Final Debugging Step ===
+    if os.path.exists(model_path):
+        print(f"DEBUG: File confirmed to exist at {model_path}")
+        print(f"DEBUG: File size: {os.path.getsize(model_path)} bytes")
+    else:
+        print(f"DEBUG: File still does NOT exist at {model_path} after download and lock release!")
+    # ===========================
+
     model = load_model(model_path)
     scaler = joblib.load(os.path.join(base_dir, 'scaler.pkl'))
     label_encoder = joblib.load(os.path.join(base_dir, 'label_encoder.pkl'))
