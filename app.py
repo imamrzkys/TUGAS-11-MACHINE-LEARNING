@@ -35,52 +35,37 @@ def load_ml_artifacts():
     model_path = os.path.join(base_dir, 'ann_student_status.keras')
     lock_path = os.path.join(base_dir, 'model.lock')
 
-    # File-based lock to prevent race conditions in a multi-worker environment
     try:
-        # Try to create a lock file. If it exists, another process is downloading.
         lock_file = open(lock_path, 'x')
         print("Acquired lock. Proceeding with model download...")
         
-        # If we acquired the lock, we are the first process. Download the model.
-        # Always attempt to download the model on startup
-        print("Attempting to download model from GitHub Releases...")
+        if os.path.exists(model_path):
+            os.remove(model_path)
+
         model_url = "https://github.com/imamrzkys/TUGAS-11-MACHINE-LEARNING/releases/download/v1.0.0/ann_student_status.keras"
-        try:
-            with requests.get(model_url, stream=True) as r:
-                r.raise_for_status()
-                with open(model_path, 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        f.write(chunk)
-            print("Download complete.")
-        except requests.exceptions.RequestException as e:
-            raise RuntimeError(f"Could not download the model file: {e}")
+        print(f"Downloading model from {model_url}...")
+        with requests.get(model_url, stream=True) as r:
+            r.raise_for_status()
+            with open(model_path, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        print("Download complete.")
+        
         lock_file.close()
-        os.remove(lock_path) # Release the lock
+        os.remove(lock_path)
         print("Lock released.")
 
     except FileExistsError:
-        # If lock file exists, wait for it to be released
-        print("Another process is downloading the model. Waiting for lock to be released...")
+        print("Waiting for model download lock to be released...")
         while os.path.exists(lock_path):
             time.sleep(2)
-        print("Lock has been released. Proceeding to load model.")
+        print("Lock released. Proceeding to load model.")
     except Exception as e:
-        # Clean up lock file on error
         if os.path.exists(lock_path):
             os.remove(lock_path)
         raise RuntimeError(f"An error occurred during model setup: {e}")
 
-    # All processes will load the model after the first one has downloaded it.
     print("Loading model and artifacts...")
-
-    # === Final Debugging Step ===
-    if os.path.exists(model_path):
-        print(f"DEBUG: File confirmed to exist at {model_path}")
-        print(f"DEBUG: File size: {os.path.getsize(model_path)} bytes")
-    else:
-        print(f"DEBUG: File still does NOT exist at {model_path} after download and lock release!")
-    # ===========================
-
     model = load_model(model_path)
     scaler = joblib.load(os.path.join(base_dir, 'scaler.pkl'))
     label_encoder = joblib.load(os.path.join(base_dir, 'label_encoder.pkl'))

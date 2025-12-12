@@ -1,6 +1,7 @@
 Flask
 gunicorn
-tensorflow
+tensorflow==2.15.0
+h5py==3.10.0
 numpy
 scikit-learn
 pandas
