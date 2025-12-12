@@ -58,11 +58,6 @@ def load_ml_artifacts():
     
     print("[OK] Model artifacts loaded successfully")
 
-@app.before_request
-def before_request():
-    global model
-    if model is None:
-        load_ml_artifacts()
 
 @app.route('/')
 def index():
@@ -135,6 +130,8 @@ def add_no_cache_headers(response):
     response.headers['Expires'] = '0'
     return response
 
+# Load artifacts on application startup
+load_ml_artifacts()
+
 if __name__ == '__main__':
-    load_ml_artifacts()
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
