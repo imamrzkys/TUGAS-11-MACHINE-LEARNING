@@ -47,13 +47,19 @@ def load_ml_artifacts():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(base_dir, 'ann_student_status.keras')
 
-    # Download model if it doesn't exist
-    if not os.path.exists(model_path):
-        print(f"Model file not found at {model_path}. Attempting to download...")
-        # Direct download link for the Google Drive file
-        model_url = "https://drive.google.com/uc?export=download&id=1EFn4QlEe9RGUZDZi4xRIx_TFKcxNBWOP"
-        if not download_file(model_url, model_path):
-            raise RuntimeError("Could not download the model file. Application cannot start.")
+    # Force delete existing model file to ensure it's not an LFS pointer
+    if os.path.exists(model_path):
+        try:
+            os.remove(model_path)
+            print(f"Removed existing model file at {model_path}")
+        except OSError as e:
+            print(f"Error removing file {model_path}: {e}")
+
+    # Always attempt to download the model on startup
+    print("Attempting to download model...")
+    model_url = "https://drive.google.com/uc?export=download&id=1EFn4QlEe9RGUZDZi4xRIx_TFKcxNBWOP"
+    if not download_file(model_url, model_path):
+        raise RuntimeError("Could not download the model file. Application cannot start.")
 
     model = load_model(model_path)
     scaler = joblib.load(os.path.join(base_dir, 'scaler.pkl'))
