@@ -30,27 +30,42 @@ feature_columns = None
 
 def load_ml_artifacts():
     global model, scaler, label_encoder, feature_columns
-    
+
     base_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(base_dir, 'ann_student_status.keras')
+    lock_path = os.path.join(base_dir, 'model.lock')
 
-    # Force delete existing model file to ensure it's not an LFS pointer
-    if os.path.exists(model_path):
-        try:
-            os.remove(model_path)
-            print(f"Removed existing model file at {model_path}")
-        except OSError as e:
-            print(f"Error removing file {model_path}: {e}")
-
-    # Always attempt to download the model on startup using gdown
-    print("Attempting to download model...")
-    model_url = "https://drive.google.com/uc?id=1EFn4QlEe9RGUZDZi4xRIx_TFKcxNBWOP"
+    # File-based lock to prevent race conditions in a multi-worker environment
     try:
+        # Try to create a lock file. If it exists, another process is downloading.
+        lock_file = open(lock_path, 'x')
+        print("Acquired lock. Proceeding with model download...")
+        
+        # If we acquired the lock, we are the first process. Download the model.
+        if os.path.exists(model_path):
+            os.remove(model_path)
+
+        model_url = "https://drive.google.com/uc?id=1EFn4QlEe9RGUZDZi4xRIx_TFKcxNBWOP"
         gdown.download(model_url, model_path, quiet=False)
         print("Download complete.")
-    except Exception as e:
-        raise RuntimeError(f"Could not download the model file: {e}")
+        lock_file.close()
+        os.remove(lock_path) # Release the lock
+        print("Lock released.")
 
+    except FileExistsError:
+        # If lock file exists, wait for it to be released
+        print("Another process is downloading the model. Waiting for lock to be released...")
+        while os.path.exists(lock_path):
+            time.sleep(2)
+        print("Lock has been released. Proceeding to load model.")
+    except Exception as e:
+        # Clean up lock file on error
+        if os.path.exists(lock_path):
+            os.remove(lock_path)
+        raise RuntimeError(f"An error occurred during model setup: {e}")
+
+    # All processes will load the model after the first one has downloaded it.
+    print("Loading model and artifacts...")
     model = load_model(model_path)
     scaler = joblib.load(os.path.join(base_dir, 'scaler.pkl'))
     label_encoder = joblib.load(os.path.join(base_dir, 'label_encoder.pkl'))
